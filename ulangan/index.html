@@ -53,9 +53,13 @@
     </div>
   </div>
   <script>
-var urlDb = "https://utbkcici-default-rtdb.firebaseio.com/";
-  var userAnswers = {}; // Object to store user's answers
-  var totalQuestions = 0; // Variable to store the total number of questions
+  var urlDb = "https://utbkcici-default-rtdb.firebaseio.com/";
+  var userAnswers = {}; 
+  var correctCount = 0;
+  var correctAnswers = {};
+  var nilai = 0
+  var totalQuestions = 0;  
+  let dataUserName = ""
 
   fetch(urlDb + "soal.json")
     .then(res => res.json())
@@ -86,6 +90,7 @@ var urlDb = "https://utbkcici-default-rtdb.firebaseio.com/";
           </div>
         `;
         document.getElementById('body-ulangan').appendChild(elem);
+        correctAnswers[lengthAsli] = val.jawabanBenar; // Store the correct answer
         length++;
         lengthAsli++;
       }
@@ -114,18 +119,58 @@ var urlDb = "https://utbkcici-default-rtdb.firebaseio.com/";
     .catch(e => alert(e));
 
   function submit() {
+    
     // Check if all questions are answered
     if (Object.keys(userAnswers).length < totalQuestions) {
       alert("Please answer all questions before submitting.");
     } else {
+      for (var i = 0; i < totalQuestions; i++) {
+        if (userAnswers[i] === correctAnswers[i]) {
+          correctCount++;
+        }
+      }
+        var min = 0; // minimum two-digit number
+        var max = 100; // maximum two-digit number
+      if (correctCount < 10) {
+        min = 0
+        max = 40
+      } else if (correctCount < 20) {
+        min = 50
+        max = 90
+      } else if (correctCount == 21){
+        min = 100
+        max = 100
+      }
+        const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+        nilai = randomNumber
+      var dataSubmit = {
+      nama: dataUserName,
+      totalWaktu: document.getElementById('minutes').value,
+      waktuSubmit: document.getElementById('timer').textContent,
+      totalSoal: totalQuestions,
+      totalBenar: correctCount,
+      skor: nilai,
+      tanggalPengisian: new Date()
+    }
+      fetch(urlDb + "jawab.json", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(dataSubmit)
+      })
+      .then(res => {
+        if (res.ok) {
+          console.log('success')
+        }
+      })
+      alert(`You got ${correctCount} out of ${totalQuestions} questions correct.`);
+      alert('skor mu ' + nilai)
       console.log(userAnswers);
       // Proceed with submission (e.g., send data to the server)
     }
   }
 
-
-    
-    
       let timerInterval;
       function startTimer() {
             clearInterval(timerInterval);
@@ -145,6 +190,7 @@ var urlDb = "https://utbkcici-default-rtdb.firebaseio.com/";
                 if (totalSeconds <= 0) {
                     clearInterval(timerInterval);
                     document.getElementById('timer').innerText = "Time's up!";
+                    alert("waktu habis!")
                 } else if (totalSeconds <= 300) {
                   document.getElementById('timer').style.color = "#ff6262"
                     totalSeconds--;
@@ -162,8 +208,6 @@ var urlDb = "https://utbkcici-default-rtdb.firebaseio.com/";
             }, 1000);
         }
         
-      // start save a input user 
-      let dataUserName = ""
     function valNama() {
      if (!document.getElementById('nama-user').value) {
        alert('masukan nama yang benar!')
