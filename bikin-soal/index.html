@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Utbk simulasi | ulangan</title>
+  <link rel="stylesheet" href="index.css" type="text/css" media="all" />
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+<body class="d-flex w-100 vh-100 flex-column justify-content-center align-items-center">
+  <div class="btn text-light p-3 bg-success">
+  <h1 class="m-0">Buat soal ulangan</h1>
+  <div class="d-flex my-2 text-left align-items-start flex-column">
+  <label for="" class="text-left">soal</label>
+  <input type="text" name="" id="soal" placeholder="ketik disini.." class="form-control">
+  <label for="" class="text-left mt-2">input jawaban</label>
+  <input type="text" name="" id="j1" placeholder="jawaban untuk A" class="form-control mb-1">
+  <input type="text" name="" id="j2" placeholder="jawaban untuk B" class="form-control mb-1">
+  <input type="text" name="" id="j3" placeholder="jawaban untuk C" class="form-control mb-1">
+  <input type="text" name="" id="j4" placeholder="jawaban untuk D" class="form-control mb-1">
+  <label for="" class="text-left mt-2">Jawaban yang benar</label>
+  <select name="" id="jb" class="form-control">
+    <option hidden>pilih..</option>
+    <option value="A">A</option>
+    <option value="B">B</option>
+    <option value="C">C</option>
+    <option value="D">D</option>
+  </select>
+  </div>
+  <div class="d-flex gap-2">
+  <button type="button" id="btn-send" class="btn btn-light" onclick="createSoal()">Buat soal</button>
+  </div>
+  <span id="textSoal" class="text-left d-flex justify-content-start m-0">Soal tersedia</span>
+  </div>
+  <script>
+    var urlDb = "https://utbkcici-default-rtdb.firebaseio.com/"
+    
+    function createSoal() {
+      var soalI = document.getElementById("soal")
+      var j1 = document.getElementById("j1")
+      var j2 = document.getElementById("j2")
+      var j3 = document.getElementById("j3")
+      var j4 = document.getElementById("j4")
+      var jb = document.getElementById("jb")
+      document.getElementById("btn-send").textContent = "loading";
+      document.getElementById("btn-send").disabled = true;
+      var eval = {
+        soal: soalI.value,
+        a: j1.value,
+        b: j2.value,
+        c: j3.value,
+        d: j4.value,
+        jawabanBenar: jb.value
+      }
+      fetch(urlDb + "soal.json", {
+        method: "POST",
+        headers: {
+        "Content-Type": "application/json"
+        },
+        body: JSON.stringify(eval)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert('soal berhasil dibuat')
+          location.reload()
+        }
+      })
+    }
+    
+    fetch(urlDb + "soal.json")
+    .then(res => res.json())
+    .then(data => {
+      var length = 0
+      for (let key in data) {
+        length++
+      }
+      document.getElementById('textSoal').textContent = `${length} soal tersedia.`
+    })
+  </script>
+</body>
+</html>
